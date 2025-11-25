@@ -1,0 +1,20 @@
+{
+  "name": "blueverse-server",
+  "version": "1.0.0",
+  "description": "A robust, modular backend built to support seamless, connected Blueverse experiences.",
+  "homepage": "https://github.com/umarprogrammer19/BlueVerse-Server#readme",
+  "bugs": {
+    "url": "https://github.com/umarprogrammer19/BlueVerse-Server/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/umarprogrammer19/BlueVerse-Server.git"
+  },
+  "license": "MIT",
+  "author": "Umar Farooq",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
