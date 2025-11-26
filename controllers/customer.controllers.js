@@ -76,3 +76,39 @@ export const deleteCustomer = async (req, res) => {
         });
     }
 }
+
+export const updateCustomer = async (req, res) => {
+    try {
+        const { customerId } = req.params;
+        const { firstName, lastName, email, phoneNumber, licencePlateNumber, address, state } = req.body;
+        if (!firstName && !lastName && !email && !phoneNumber && !licencePlateNumber && !address && !state)
+            return res.status(400).json({
+                success: false,
+                message: "No fields to update"
+            });
+        const user = await User.findOne({ customerId });
+        if (!user) return res.status(404).json({
+            success: false,
+            message: "Customer not found"
+        });
+        await user.updateOne({
+            firstName,
+            lastName,
+            email,
+            phoneNumber,
+            licencePlateNumber,
+            address,
+            state,
+        });
+        res.status(200).json({
+            success: true,
+            message: "Customer updated successfully"
+        });
+    } catch (error) {
+        console.error("Error updating customer:", error.message);
+        res.status(500).json({
+            success: false,
+            message: error.message || "Internal server error",
+        });
+    }
+}
