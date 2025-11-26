@@ -33,3 +33,24 @@ export const createCustomer = async (req, res) => {
         });
     }
 }
+
+export const getCustomer = async (req, res) => {
+    try {
+        const { customerId } = req.params;
+        const user = await User.findOne({ customerId });
+        if (!user) return res.status(404).json({
+            success: false,
+            message: "Customer not found"
+        });
+        res.status(200).json({
+            success: true,
+            user
+        });
+    } catch (error) {
+        console.error("Error getting customer:", error.message);
+        res.status(500).json({
+            success: false,
+            message: error.message || "Internal server error",
+        });
+    }
+}
