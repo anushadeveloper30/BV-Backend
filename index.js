@@ -1,6 +1,6 @@
 import express from "express";
-import { Welcome } from "./helpers/welcome.js";
 import "dotenv/config";
+import { Welcome } from "./helpers/welcome.js";
 import { connectDB } from "./database/connection.js";
 import authRoutes from "./routes/auth.routes.js";
 import cookieParser from "cookie-parser";

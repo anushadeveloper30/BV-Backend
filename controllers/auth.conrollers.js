@@ -1,7 +1,6 @@
 import bcrypt from 'bcrypt';
 import { User } from "../models/user.models.js";
 import { generateAccessToken } from '../utils/jwt.js';
-import bcrypt from "bcrypt";
 
 // Signup Api
 export const signup = async (req, res) => {
