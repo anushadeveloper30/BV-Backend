@@ -1,17 +1,17 @@
-import { User } from "../models/user.models.js";
+import Customer from "../models/customer.model.js";
 
 export const createCustomer = async (req, res) => {
     try {
         const { customerId, firstName, lastName, email, phoneNumber, licencePlateNumber, address, state } = req.body;
 
-        const user = await User.findOne({ $or: [{ customerId }, { email }] });
+        const user = await Customer.findOne({ $or: [{ customerId }, { email }] });
 
         if (user) return res.status(400).json({
             success: false,
             message: "User already exists"
         });
 
-        await User.create({
+        const newCustomer = await Customer.create({
             customerId,
             firstName,
             lastName,
@@ -23,7 +23,8 @@ export const createCustomer = async (req, res) => {
         });
         res.status(201).json({
             success: true,
-            message: "Customer created successfully"
+            message: "Customer created successfully",
+            customer: newCustomer
         });
     } catch (error) {
         console.error("Error creating customer:", error.message);
@@ -37,7 +38,7 @@ export const createCustomer = async (req, res) => {
 export const getCustomer = async (req, res) => {
     try {
         const { customerId } = req.params;
-        const user = await User.findOne({ customerId });
+        const user = await Customer.findOne({ customerId });
         if (!user) return res.status(404).json({
             success: false,
             message: "Customer not found"
@@ -58,7 +59,7 @@ export const getCustomer = async (req, res) => {
 export const deleteCustomer = async (req, res) => {
     try {
         const { customerId } = req.params;
-        const user = await User.findOne({ customerId });
+        const user = await Customer.findOne({ customerId });
         if (!user) return res.status(404).json({
             success: false,
             message: "Customer not found"
@@ -86,7 +87,7 @@ export const updateCustomer = async (req, res) => {
                 success: false,
                 message: "No fields to update"
             });
-        const user = await User.findOne({ customerId });
+        const user = await Customer.findOne({ customerId });
         if (!user) return res.status(404).json({
             success: false,
             message: "Customer not found"
@@ -115,7 +116,7 @@ export const updateCustomer = async (req, res) => {
 
 export const getAllCustomers = async (req, res) => {
     try {
-        const users = await User.find({});
+        const users = await Customer.find({});
         res.status(200).json({
             success: true,
             users
