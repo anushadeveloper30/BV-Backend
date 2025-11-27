@@ -18,6 +18,11 @@ const invoiceSchema = new mongoose.Schema({
                 required: true
             }
         }),
+        transactionId: {
+            type: String,
+            unique: true,
+            required: true
+        },
         state: {
             type: String,
             default: "Al Quoz"

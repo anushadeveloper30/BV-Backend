@@ -4,20 +4,18 @@ import nodemailer from "nodemailer";
 import pdf from "html-pdf";
 import fs from "fs";
 import path from "path";
+import bwipjs from 'bwip-js';
 import { fileURLToPath } from 'url';
-import JsBarcode from 'jsbarcode';
-
-import { JSDOM } from 'jsdom';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export const createInvoice = async (req, res) => {
     try {
-        const { customer, serviceDetails, discounts, state } = req.body;
+        const { customer, serviceDetails, discounts, state, transactionId } = req.body;
 
         // Basic validation
-        if (!customer || !serviceDetails || !serviceDetails.serviceName || !serviceDetails.price) {
+        if (!customer || !serviceDetails || !serviceDetails.serviceName || !serviceDetails.price || !transactionId) {
             return res.status(400).json({ message: "Missing required invoice fields." });
         }
 
@@ -32,32 +30,29 @@ export const createInvoice = async (req, res) => {
             serviceDetails,
             discounts,
             state,
+            transactionId,
         });
 
         await newInvoice.save();
 
-        // Barcode generation
-        const { window } = new JSDOM(`<!DOCTYPE html><html><body><svg id="barcodeSvg"></svg></body></html>`);
-        const { document } = window;
+        // Barcode generation using bwip-js
+        let barcodePngBuffer;
+        try {
+            barcodePngBuffer = await bwipjs.toBuffer({
+                bcid: 'code128', // Barcode type
+                text: newInvoice.transactionId, // Data to encode
+                scale: 3, // 3x scaling factor
+                height: 10, // Bar height, in millimeters
+                includetext: false, // Don't show human-readable text
+                textxalign: 'center', // Always good to set this
+            });
+        } catch (err) {
+            console.error("Error generating barcode:", err);
+            return res.status(500).json({ message: "Error generating barcode." });
+        }
 
-        const oldWindow = global.window;
-        const oldDocument = global.document;
-
-        global.window = window;
-        global.document = document;
-
-        const barcodeElement = document.getElementById('barcodeSvg');
-        JsBarcode(barcodeElement, newInvoice._id.toString(), {
-            format: "CODE128",
-            displayValue: false,
-            width: 2,
-            height: 50,
-        });
-
-        const barcodeSvgString = barcodeElement.outerHTML;
-
-        global.window = oldWindow;
-        global.document = oldDocument;
+        const barcodeBase64 = barcodePngBuffer.toString('base64');
+        const barcodeDataUri = `data:image/png;base64,${barcodeBase64}`;
 
         // Generate PDF
         const invoiceHtml = `
@@ -150,14 +145,12 @@ export const createInvoice = async (req, res) => {
                     <div class="header">
                         <h1>PAID</h1>
                         <p>Al Quoz</p>
-                        <p>Al Mutakamela Vehicle Testing and Registration Center</p>
-                        <p>Al Quoz 410092</p>
                         <p>(555) 555-5555</p>
                     </div>
 
                     <div class="barcode">
                         <!-- Barcode will be inserted here -->
-                        ${barcodeSvgString}
+                                                <img src="${barcodeDataUri}" alt="barcode" width="150" height="60"/>
                     </div>
 
                     <table class="details-table">
@@ -165,8 +158,12 @@ export const createInvoice = async (req, res) => {
                             <td class="label">Invoice #</td>
                             <td>${newInvoice._id}</td>
                             <td></td>
+                            <td class="label">Transaction #</td>
+                            <td>${newInvoice.transactionId}</td>
+                        </tr>
+                        <tr>
                             <td class="label">User</td>
-                            <td>${existingCustomer.name}</td>
+                            <td>${existingCustomer.firstName + " " + existingCustomer.lastName}</td>
                         </tr>
                         <tr>
                             <td class="label">License</td>
@@ -214,16 +211,6 @@ export const createInvoice = async (req, res) => {
                             </tr>
                         </tbody>
                     </table>
-
-                    <p><strong>Payment Methods</strong></p>
-                    <p>Redeem Basic Club Membership 8 Washes</p>
-
-                    <p style="margin-top: 30px;">I agree to pay above charges.</p>
-                    <p>Sign<span class="signature-line"></span></p>
-
-                    <div class="footer">
-                        <p>Thank you for your business! Join our membership and wash everyday for one low monthly price!</p>
-                    </div>
                 </div>
             </body>
             </html>
