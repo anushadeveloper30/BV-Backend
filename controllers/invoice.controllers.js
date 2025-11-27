@@ -62,30 +62,39 @@ export const createInvoice = async (req, res) => {
                 <title>Invoice</title>
                 <style>
                     body {
-                        font-family: Arial, sans-serif;
-                        margin: 20px;
+                        font-family: 'Roboto', sans-serif;
+                        margin: 0;
+                        padding: 20px;
                         color: #333;
+                        background-color: #f9f9f9;
                     }
                     .invoice-box {
-                        max-width: 800px;
-                        margin: auto;
-                        padding: 30px;
-                        border: 1px solid #eee;
-                        box-shadow: 0 0 10px rgba(0, 0, 0, .15);
-                        font-size: 16px;
-                        line-height: 24px;
-                        color: #555;
+                        max-width: 850px;
+                        margin: 30px auto;
+                        padding: 40px;
+                        border: 1px solid #ddd;
+                        background-color: #fff;
+                        box-shadow: 0 4px 12px rgba(0, 0, 0, .08);
+                        font-size: 14px;
+                        line-height: 1.6;
+                        color: #444;
+                        border-radius: 8px;
                     }
                     .header {
                         text-align: center;
-                        margin-bottom: 20px;
+                        margin-bottom: 30px;
+                        padding-bottom: 20px;
+                        border-bottom: 2px solid #eee;
                     }
                     .header h1 {
-                        font-size: 24px;
-                        margin-bottom: 5px;
+                        font-size: 28px;
+                        color: #1F62AE;
+                        margin-bottom: 8px;
                     }
                     .header p {
                         margin: 0;
+                        font-size: 14px;
+                        color: #555;
                     }
                     .barcode {
                         text-align: center;
@@ -93,44 +102,79 @@ export const createInvoice = async (req, res) => {
                     }
                     .details-table {
                         width: 100%;
-                        line-height: inherit;
+                        line-height: 1.8;
                         text-align: left;
-                        margin-bottom: 20px;
+                        margin-bottom: 25px;
+                        border: 1px solid #eee;
+                        border-radius: 5px;
+                        overflow: hidden;
                     }
                     .details-table td {
-                        padding: 5px;
+                        padding: 10px 15px;
                         vertical-align: top;
+                        border-bottom: 1px solid #eee;
+                    }
+                    .details-table tr:last-child td {
+                        border-bottom: none;
                     }
                     .details-table .label {
-                        width: 150px;
+                        width: 180px;
+                        font-weight: bold;
+                        color: #333;
+                        background-color: #f5f5f5;
                     }
                     .item-table {
                         width: 100%;
                         line-height: inherit;
                         text-align: left;
                         border-collapse: collapse;
-                        margin-bottom: 20px;
+                        margin-bottom: 25px;
+                        border: 1px solid #eee;
+                        border-radius: 5px;
+                        overflow: hidden;
                     }
                     .item-table th, .item-table td {
-                        border-bottom: 1px dashed #eee;
-                        padding: 8px;
+                        border-bottom: 1px solid #eee;
+                        padding: 12px 15px;
                         vertical-align: top;
                     }
                     .item-table th {
-                        background: #eee;
+                        background: #f5f5f5;
+                        font-weight: bold;
+                        color: #333;
+                    }
+                    .item-table tr:nth-child(even) {
+                        background-color: #fcfcfc;
+                    }
+                    .item-table tr:last-child td {
+                        border-bottom: none;
                     }
                     .total-row td {
-                        border-top: 2px solid #eee;
+                        border-top: 2px solid #ddd;
                         font-weight: bold;
+                        font-size: 16px;
+                        color: #1F62AE;
                     }
                     .text-right {
                         text-align: right;
                     }
                     .footer {
-                        margin-top: 30px;
+                        margin-top: 40px;
                         text-align: center;
-                        font-size: 14px;
-                        color: #777;
+                        font-size: 13px;
+                        color: #888;
+                        padding-top: 20px;
+                        border-top: 1px solid #eee;
+                    }
+                    .footer p {
+                        margin: 5px 0;
+                    }
+                    .footer a {
+                        color: #1F62AE;
+                        text-decoration: none;
+                    }
+                    .footer a:hover {
+                        text-decoration: underline;
                     }
                     .signature-line {
                         width: 200px;
@@ -163,7 +207,8 @@ export const createInvoice = async (req, res) => {
   </defs>
 </svg>
                         </div>
-                        <p>Al Quoz</p>
+                        <p style="font-size: 12px; margin-top: 5px; color: #777;">TRN: 100200300400500</p>
+                        <p>Blueverse Vehicle Washing LLC Metropolis Towers #403 Business Bay, Dubai, UAE</p>
                         <p>+971 544692205</p>
                     </div>
 
@@ -210,23 +255,23 @@ export const createInvoice = async (req, res) => {
                         <tbody>
                             <tr>
                                 <td>${newInvoice.serviceDetails.serviceName}</td>
-                                <td class="text-right">$${newInvoice.serviceDetails.price.toFixed(2)}</td>
+                                <td class="text-right">AED ${newInvoice.serviceDetails.price.toFixed(2)}</td>
                             </tr>
                             <tr>
                                 <td>Discounts</td>
-                                <td class="text-right">-$${newInvoice.discounts.toFixed(2)}</td>
+                                <td class="text-right">-AED ${newInvoice.discounts.toFixed(2)}</td>
                             </tr>
                             <tr>
                                 <td>Subtotal</td>
-                                <td class="text-right">$${newInvoice.subtotal.toFixed(2)}</td>
+                                <td class="text-right">AED ${newInvoice.subtotal.toFixed(2)}</td>
                             </tr>
                             <tr>
                                 <td>Tax Rate (${(newInvoice.taxRate * 100).toFixed(0)}%)</td>
-                                <td class="text-right">$${newInvoice.taxAmount.toFixed(2)}</td>
+                                <td class="text-right">AED ${newInvoice.taxAmount.toFixed(2)}</td>
                             </tr>
                             <tr class="total-row">
                                 <td>Total</td>
-                                <td class="text-right">$${newInvoice.total.toFixed(2)}</td>
+                                <td class="text-right">AED ${newInvoice.total.toFixed(2)}</td>
                             </tr>
                         </tbody>
                     </table>
