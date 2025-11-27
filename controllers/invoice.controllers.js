@@ -6,6 +6,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from 'url';
 import JsBarcode from 'jsbarcode';
+
 import { JSDOM } from 'jsdom';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -36,10 +37,16 @@ export const createInvoice = async (req, res) => {
         await newInvoice.save();
 
         // Barcode generation
-        const dom = new JSDOM(`<!DOCTYPE html><html><body><svg id="barcodeSvg"></svg></body></html>`);
-        const document = dom.window.document;
-        const barcodeElement = document.getElementById('barcodeSvg');
+        const { window } = new JSDOM(`<!DOCTYPE html><html><body><svg id="barcodeSvg"></svg></body></html>`);
+        const { document } = window;
 
+        const oldWindow = global.window;
+        const oldDocument = global.document;
+
+        global.window = window;
+        global.document = document;
+
+        const barcodeElement = document.getElementById('barcodeSvg');
         JsBarcode(barcodeElement, newInvoice._id.toString(), {
             format: "CODE128",
             displayValue: false,
@@ -48,6 +55,9 @@ export const createInvoice = async (req, res) => {
         });
 
         const barcodeSvgString = barcodeElement.outerHTML;
+
+        global.window = oldWindow;
+        global.document = oldDocument;
 
         // Generate PDF
         const invoiceHtml = `
