@@ -33,6 +33,20 @@ const customerSchema = new mongoose.Schema({
         type: String,
         default: "Al Quoz"
     },
+    invoiceCount: {
+        type: Number,
+        default: 0
+    },
 }, { timestamps: true });
+
+customerSchema.virtual('invoices', {
+    ref: 'Invoice',
+    localField: '_id',
+    foreignField: 'customer',
+    justOne: false
+});
+
+customerSchema.set('toObject', { virtuals: true });
+customerSchema.set('toJSON', { virtuals: true });
 
 export default mongoose.model("Customer", customerSchema);
